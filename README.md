@@ -1,6 +1,4 @@
-# N3N AI Draft 20
-
-Real-time operational intelligence landing page for N3N AI.
+# N3N AI Draft
 
 > 본 빌드는 **사전 배포 버전**입니다. 최종 업데이트는 다음달 진행 예정.
 
