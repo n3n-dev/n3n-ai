@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ha3l1m.github.io/n3nai/sitemap.xml
