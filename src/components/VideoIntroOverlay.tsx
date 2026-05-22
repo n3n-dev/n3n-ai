@@ -1,40 +1,40 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { SkipForward, Check, X } from 'lucide-react'
-import type { Lang } from '../i18n/translations'
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SkipForward, Check, X } from "lucide-react";
+import type { Lang } from "../i18n/translations";
 
 interface Props {
-  videoSrc: string
-  lang?: Lang
+  videoSrc: string;
+  lang?: Lang;
   /** Called when overlay should dismiss (video ended OR skip clicked) */
-  onComplete?: () => void
+  onComplete?: () => void;
   /** localStorage key used for the "don't show today" preference */
-  storageKey?: string
+  storageKey?: string;
 }
 
 const todayYmd = () => {
-  const d = new Date()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 const readOptOutDate = (key: string): string | null => {
   try {
-    return localStorage.getItem(key)
+    return localStorage.getItem(key);
   } catch {
-    return null
+    return null;
   }
-}
+};
 
 const writeOptOutDate = (key: string, value: string) => {
   try {
-    localStorage.setItem(key, value)
+    localStorage.setItem(key, value);
   } catch {
     /* noop */
   }
-}
+};
 
 /**
  * Full-viewport intro video overlay.
@@ -48,35 +48,37 @@ const writeOptOutDate = (key: string, value: string) => {
  */
 export default function VideoIntroOverlay({
   videoSrc,
-  lang = 'ko',
+  lang = "ko",
   onComplete,
-  storageKey = 'n3n-intro-hidden-date',
+  storageKey = "n3n-intro-hidden-date",
 }: Props) {
-  const [visible, setVisible] = useState(() => readOptOutDate(storageKey) !== todayYmd())
-  const [dontShowToday, setDontShowToday] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const isKo = lang === 'ko'
+  const [visible, setVisible] = useState(
+    () => readOptOutDate(storageKey) !== todayYmd(),
+  );
+  const [dontShowToday, setDontShowToday] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isKo = lang === "ko";
 
   // Lock body scroll while overlay is up
   useEffect(() => {
-    if (!visible) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    if (!visible) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev
-    }
-  }, [visible])
+      document.body.style.overflow = prev;
+    };
+  }, [visible]);
 
   const dismiss = () => {
-    if (dontShowToday) writeOptOutDate(storageKey, todayYmd())
-    setVisible(false)
-    if (videoRef.current) videoRef.current.pause()
-  }
+    if (dontShowToday) writeOptOutDate(storageKey, todayYmd());
+    setVisible(false);
+    if (videoRef.current) videoRef.current.pause();
+  };
 
   return (
     <AnimatePresence
       onExitComplete={() => {
-        onComplete?.()
+        onComplete?.();
       }}
     >
       {visible && (
@@ -92,6 +94,7 @@ export default function VideoIntroOverlay({
             autoPlay
             muted
             playsInline
+            preload="metadata"
             onEnded={dismiss}
             className="w-full h-full object-cover scale-110 origin-top"
           />
@@ -104,7 +107,7 @@ export default function VideoIntroOverlay({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.8 }}
             className="absolute top-6 md:top-8 right-6 md:right-8 z-10 inline-flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full border border-white/30 bg-transparent backdrop-blur-md text-white/85 hover:bg-white hover:text-black hover:border-white transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-            aria-label={isKo ? '인트로 영상 닫기' : 'Close intro video'}
+            aria-label={isKo ? "인트로 영상 닫기" : "Close intro video"}
           >
             <X size={18} strokeWidth={2} />
           </motion.button>
@@ -122,10 +125,10 @@ export default function VideoIntroOverlay({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.2 }}
               className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-[4px] border border-white/30 bg-transparent backdrop-blur-md text-white/90 hover:bg-white hover:text-black hover:border-white transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-              aria-label={isKo ? '인트로 영상 건너뛰기' : 'Skip intro video'}
+              aria-label={isKo ? "인트로 영상 건너뛰기" : "Skip intro video"}
             >
               <span className="font-grotesk text-xs md:text-sm font-semibold tracking-[0.2em] uppercase">
-                {isKo ? '건너뛰기' : 'Skip intro'}
+                {isKo ? "건너뛰기" : "Skip intro"}
               </span>
               <SkipForward
                 size={14}
@@ -150,19 +153,21 @@ export default function VideoIntroOverlay({
                 aria-hidden
                 className={`w-4 h-4 rounded-[2px] border flex items-center justify-center transition-all ${
                   dontShowToday
-                    ? 'border-white bg-white'
-                    : 'border-white/50 bg-transparent hover:border-white/80'
+                    ? "border-white bg-white"
+                    : "border-white/50 bg-transparent hover:border-white/80"
                 }`}
               >
-                {dontShowToday && <Check size={11} className="text-black" strokeWidth={3} />}
+                {dontShowToday && (
+                  <Check size={11} className="text-black" strokeWidth={3} />
+                )}
               </span>
               <span className="font-grotesk text-[11px] md:text-xs font-medium uppercase tracking-[0.12em]">
-                {isKo ? '오늘은 더이상 보지 않기' : "Don't show again today"}
+                {isKo ? "오늘은 더이상 보지 않기" : "Don't show again today"}
               </span>
             </motion.label>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

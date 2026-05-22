@@ -16,21 +16,21 @@
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173/n3nai/
+npm run dev      # http://localhost:5173/
 npm run build
 npm run preview
 ```
 
 ## 주요 섹션
 
-| 섹션 | 컴포넌트 |
-|---|---|
-| Hero | `Hero20` |
-| Platform Overview | `PlatformOverview` |
-| Solution Tabs (INNOWATCH / WIZEYE) | `SolutionTabs` |
-| Connected X | `ConnectedXSection` |
-| Industry Use Cases | `Industries` |
-| Operational Intelligence in Action | `UseCasesMarquee` |
+| 섹션                               | 컴포넌트            |
+| ---------------------------------- | ------------------- |
+| Hero                               | `Hero20`            |
+| Platform Overview                  | `PlatformOverview`  |
+| Solution Tabs (INNOWATCH / WIZEYE) | `SolutionTabs`      |
+| Connected X                        | `ConnectedXSection` |
+| Industry Use Cases                 | `Industries`        |
+| Operational Intelligence in Action | `UseCasesMarquee`   |
 
 ## 전역 UI
 

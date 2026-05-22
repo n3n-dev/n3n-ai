@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /draft
 
-Sitemap: https://ha3l1m.github.io/n3nai/sitemap.xml
+Sitemap: https://n3n.ai/sitemap.xml
