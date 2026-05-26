@@ -263,7 +263,7 @@ on:
   4. **kubeconfig 파일로 작성**: 시크릿을 `$RUNNER_TEMP/.kube/config`로 직접 기록(step output 경유 금지 → 마스킹 풀림 방지)
      - d2면 `KUBECONFIG_D2`, prod면 `KUBECONFIG_PROD` 시크릿 사용
   5. **배포**:
-     - `kubectl apply -f k8s/<env>/combined.yaml` (먼저 리소스 적용)
+     - `kubectl -n $NAMESPACE apply -f k8s/<env>/combined.yaml` (먼저 리소스 적용)
      - `kubectl -n $NAMESPACE set image deployment/n3nai n3nai=$IMAGE:sha-<sha>`
      - `kubectl -n $NAMESPACE rollout status deployment/n3nai --timeout=120s`
   6. **실패 시 자동 롤백** (`if: failure()`):
@@ -351,7 +351,7 @@ jobs:
         env:
           KUBECONFIG: ${{ runner.temp }}/.kube/config
         run: |
-          kubectl apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
+          kubectl -n $NAMESPACE apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
           kubectl -n $NAMESPACE set image \
             deployment/$APP_NAME \
             $APP_NAME=$IMAGE_NAME:sha-${{ github.sha }}
