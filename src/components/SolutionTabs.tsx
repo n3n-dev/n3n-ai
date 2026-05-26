@@ -684,7 +684,7 @@ export default function SolutionTabs({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => selectProduct(p.key)}
-                className="relative flex-1 md:flex-none text-center px-4 md:px-6 py-3 md:py-4 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                className="relative flex-1 md:flex-none text-center px-4 md:px-6 py-3 md:py-4 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer"
                 style={{
                   fontFamily: '"Inter", system-ui, sans-serif',
                   fontSize: 13,
@@ -740,8 +740,8 @@ export default function SolutionTabs({
                 className={`relative rounded-[20px] border cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 overflow-hidden flex-col ${
                   variant === "draft20"
                     ? activeKey === "innowatch"
-                      ? "h-[420px] md:h-[460px]"
-                      : "h-[460px] md:h-[540px]"
+                      ? "h-[460px] md:h-[500px]"
+                      : "h-[500px] md:h-[580px]"
                     : "h-auto md:h-[560px]"
                 } ${active ? "flex" : "hidden md:flex"}`}
                 transition={{ duration: 0.55, ease }}
@@ -784,10 +784,10 @@ export default function SolutionTabs({
                         className="relative w-full rounded-[12px] overflow-hidden bg-[#F4F2EC] mx-auto"
                         style={{
                           aspectRatio: "16 / 9",
-                          maxHeight: variant === "draft20" ? 200 : 240,
+                          maxHeight: variant === "draft20" ? 240 : 240,
                           maxWidth:
                             variant === "draft20"
-                              ? `${(200 * 16) / 9}px`
+                              ? `${(240 * 16) / 9}px`
                               : `${(240 * 16) / 9}px`,
                         }}
                       >

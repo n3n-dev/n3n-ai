@@ -68,7 +68,7 @@ export default function Footer({ lang, onToggleLang }: Props) {
               className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md text-[11px] sm:text-xs font-semibold tracking-wide border border-gray-700 text-gray-300 hover:border-blue-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]"
               aria-label="Toggle language"
             >
-              {lang === "ko" ? "한글" : "EN"}
+              {lang === "ko" ? "Eng" : "한글"}
             </button>
 
             {/* Theme toggle, hidden (single-theme product) */}
