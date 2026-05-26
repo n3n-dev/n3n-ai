@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -23,7 +22,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -63,35 +62,29 @@ jobs:
             exit 1
           fi
 
-      - name: Write kubeconfig (d2)
-        if: steps.target.outputs.env == 'd2'
+      - name: Write kubeconfig
         run: |
           mkdir -p "$RUNNER_TEMP/.kube"
-          echo "${{ secrets.KUBECONFIG_D2 }}" > "$RUNNER_TEMP/.kube/config"
-          chmod 600 "$RUNNER_TEMP/.kube/config"
-
-      - name: Write kubeconfig (prod)
-        if: steps.target.outputs.env == 'prod'
-        run: |
-          mkdir -p "$RUNNER_TEMP/.kube"
-          echo "${{ secrets.KUBECONFIG_PROD }}" > "$RUNNER_TEMP/.kube/config"
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > "$RUNNER_TEMP/.kube/config"
           chmod 600 "$RUNNER_TEMP/.kube/config"
 
       - name: Deploy
         env:
           KUBECONFIG: ${{ runner.temp }}/.kube/config
+          CONTEXT: ${{ steps.target.outputs.env }}
         run: |
-          kubectl -n $NAMESPACE apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
-          kubectl -n $NAMESPACE set image \
+          kubectl --context "$CONTEXT" -n $NAMESPACE apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
+          kubectl --context "$CONTEXT" -n $NAMESPACE set image \
             deployment/$APP_NAME \
             $APP_NAME=$IMAGE_NAME:sha-${{ github.sha }}
-          kubectl -n $NAMESPACE rollout status \
+          kubectl --context "$CONTEXT" -n $NAMESPACE rollout status \
             deployment/$APP_NAME --timeout=120s
 
       - name: Rollback on failure
         if: failure()
         env:
           KUBECONFIG: ${{ runner.temp }}/.kube/config
+          CONTEXT: ${{ steps.target.outputs.env }}
         run: |
-          kubectl -n $NAMESPACE rollout undo deployment/$APP_NAME || true
+          kubectl --context "$CONTEXT" -n $NAMESPACE rollout undo deployment/$APP_NAME || true
           exit 1
