@@ -247,8 +247,9 @@ on:
 ### 5.3 Job 1 — `build-and-push`
 
 - `runs-on: ubuntu-latest`
-- `permissions: contents:read, packages:write`
+- `permissions: contents:read` (PAT 사용으로 `packages:write` 불필요)
 - GHCR 로그인(`docker/login-action@v3`) → buildx → `docker/build-push-action@v5`로 빌드 & 푸시
+- GHCR 인증: `password: secrets.GHCR_PAT` (사용자 PAT — `write:packages` 권한 필요)
 - platforms: `linux/amd64`
 - 태그: `:latest` + `:sha-${{ github.sha }}` (jikji 컨벤션)
 
@@ -260,23 +261,21 @@ on:
   1. `actions/checkout@v4`
   2. `azure/setup-kubectl@v3` (v1.28.0)
   3. **target 환경 분기 (`github.ref` 기반)**: `draft1` → `d2`, `main` → `prod`
-  4. **kubeconfig 파일로 작성**: 시크릿을 `$RUNNER_TEMP/.kube/config`로 직접 기록(step output 경유 금지 → 마스킹 풀림 방지)
-     - d2면 `KUBECONFIG_D2`, prod면 `KUBECONFIG_PROD` 시크릿 사용
+  4. **kubeconfig 파일로 작성**: 단일 `KUBECONFIG_CONTENT` 시크릿을 `$RUNNER_TEMP/.kube/config`로 기록(이 파일 내부에 d2와 prod 두 context가 있어야 함)
   5. **배포**:
-     - `kubectl apply -f k8s/<env>/combined.yaml` (먼저 리소스 적용)
-     - `kubectl -n $NAMESPACE set image deployment/n3nai n3nai=$IMAGE:sha-<sha>`
-     - `kubectl -n $NAMESPACE rollout status deployment/n3nai --timeout=120s`
+     - `kubectl --context "$CONTEXT" -n $NAMESPACE apply -f k8s/<env>/combined.yaml` (먼저 리소스 적용)
+     - `kubectl --context "$CONTEXT" -n $NAMESPACE set image deployment/n3nai n3nai=$IMAGE:sha-<sha>`
+     - `kubectl --context "$CONTEXT" -n $NAMESPACE rollout status deployment/n3nai --timeout=120s`
   6. **실패 시 자동 롤백** (`if: failure()`):
-     - `kubectl -n $NAMESPACE rollout undo deployment/n3nai`
+     - `kubectl --context "$CONTEXT" -n $NAMESPACE rollout undo deployment/n3nai`
      - `exit 1`로 워크플로우 실패 표시
 
 ### 5.5 필요 GitHub Secrets
 
-| 시크릿 이름       | 내용                                       |
-| ----------------- | ------------------------------------------ |
-| `KUBECONFIG_D2`   | d2 클러스터 Rancher kubeconfig YAML 전체   |
-| `KUBECONFIG_PROD` | prod 클러스터 Rancher kubeconfig YAML 전체 |
-| `GITHUB_TOKEN`    | 기본 제공 (GHCR 푸시)                      |
+| 시크릿 이름          | 내용                                                                            |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `GHCR_PAT`           | GHCR push용 Personal Access Token (`write:packages` 권한)                       |
+| `KUBECONFIG_CONTENT` | d2와 prod 두 context를 모두 포함한 단일 kubeconfig (context 이름: `d2`, `prod`) |
 
 ### 5.6 전체 워크플로우 골격
 
@@ -297,16 +296,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
@@ -318,9 +322,13 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: self-hosted
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-kubectl@v3
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
         with:
           version: "v1.28.0"
 
@@ -331,39 +339,36 @@ jobs:
             echo "env=d2" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown ref: ${{ github.ref }}" >&2
+            exit 1
           fi
 
-      - name: Write kubeconfig (d2)
-        if: steps.target.outputs.env == 'd2'
+      - name: Write kubeconfig
         run: |
           mkdir -p "$RUNNER_TEMP/.kube"
-          echo "${{ secrets.KUBECONFIG_D2 }}" > "$RUNNER_TEMP/.kube/config"
-          chmod 600 "$RUNNER_TEMP/.kube/config"
-
-      - name: Write kubeconfig (prod)
-        if: steps.target.outputs.env == 'prod'
-        run: |
-          mkdir -p "$RUNNER_TEMP/.kube"
-          echo "${{ secrets.KUBECONFIG_PROD }}" > "$RUNNER_TEMP/.kube/config"
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > "$RUNNER_TEMP/.kube/config"
           chmod 600 "$RUNNER_TEMP/.kube/config"
 
       - name: Deploy
         env:
           KUBECONFIG: ${{ runner.temp }}/.kube/config
+          CONTEXT: ${{ steps.target.outputs.env }}
         run: |
-          kubectl apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
-          kubectl -n $NAMESPACE set image \
+          kubectl --context "$CONTEXT" -n $NAMESPACE apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
+          kubectl --context "$CONTEXT" -n $NAMESPACE set image \
             deployment/$APP_NAME \
             $APP_NAME=$IMAGE_NAME:sha-${{ github.sha }}
-          kubectl -n $NAMESPACE rollout status \
+          kubectl --context "$CONTEXT" -n $NAMESPACE rollout status \
             deployment/$APP_NAME --timeout=120s
 
       - name: Rollback on failure
         if: failure()
         env:
           KUBECONFIG: ${{ runner.temp }}/.kube/config
+          CONTEXT: ${{ steps.target.outputs.env }}
         run: |
-          kubectl -n $NAMESPACE rollout undo deployment/$APP_NAME || true
+          kubectl --context "$CONTEXT" -n $NAMESPACE rollout undo deployment/$APP_NAME || true
           exit 1
 ```
 
@@ -382,11 +387,11 @@ jobs:
 
 ## 7. 미결정 사항 (사용자 확인 필요)
 
-| #   | 항목                                                               | 결정 시점                                          |
-| --- | ------------------------------------------------------------------ | -------------------------------------------------- |
-| U1  | prod TLS 인증서 시크릿명 (와일드카드 추정)                         | 매니페스트 작성 직전                               |
-| U2  | self-hosted runner의 정확한 라벨 (예: `[self-hosted, n3n-runner]`) | 워크플로우 작성 직전                               |
-| U3  | `KUBECONFIG_D2`, `KUBECONFIG_PROD` 시크릿 등록                     | 머지 직전 (사용자가 GitHub Repo Settings에서 등록) |
+| #   | 항목                                                               | 결정 시점            |
+| --- | ------------------------------------------------------------------ | -------------------- |
+| U1  | prod TLS 인증서 시크릿명 (와일드카드 추정)                         | 매니페스트 작성 직전 |
+| U2  | self-hosted runner의 정확한 라벨 (예: `[self-hosted, n3n-runner]`) | 워크플로우 작성 직전 |
+| U3  | `GHCR_PAT`, `KUBECONFIG_CONTENT` 시크릿 등록                       | 머지 직전            |
 
 ---
 
