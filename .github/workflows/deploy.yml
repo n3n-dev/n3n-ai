@@ -41,6 +41,8 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: self-hosted
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +58,9 @@ jobs:
             echo "env=d2" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown ref: ${{ github.ref }}" >&2
+            exit 1
           fi
 
       - name: Write kubeconfig (d2)
