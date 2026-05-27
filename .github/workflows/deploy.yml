@@ -64,10 +64,18 @@ jobs:
 
       - name: Write kubeconfig
         env:
-          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_CONTENT }}
+          KUBECONFIG_D2: ${{ secrets.KUBECONFIG_D2 }}
+          KUBECONFIG_PROD: ${{ secrets.KUBECONFIG_PROD }}
+          CONTEXT: ${{ steps.target.outputs.env }}
         run: |
           mkdir -p "$RUNNER_TEMP/.kube"
-          echo "$KUBECONFIG_B64" | base64 -d > "$RUNNER_TEMP/.kube/config"
+          if [ "$CONTEXT" = "d2" ]; then
+            echo "$KUBECONFIG_D2" | base64 -d > "$RUNNER_TEMP/.kube/config"
+          elif [ "$CONTEXT" = "prod" ]; then
+            echo "$KUBECONFIG_PROD" | base64 -d > "$RUNNER_TEMP/.kube/config"
+          else
+            echo "Unknown CONTEXT: $CONTEXT" >&2; exit 1
+          fi
           chmod 600 "$RUNNER_TEMP/.kube/config"
 
       - name: Deploy
