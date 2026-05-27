@@ -39,7 +39,7 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: self-hosted
+    runs-on: arc-runner-set
     permissions:
       contents: read
     steps:
