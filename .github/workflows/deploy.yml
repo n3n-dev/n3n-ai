@@ -63,9 +63,11 @@ jobs:
           fi
 
       - name: Write kubeconfig
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_CONTENT }}
         run: |
           mkdir -p "$RUNNER_TEMP/.kube"
-          echo "${{ secrets.KUBECONFIG_CONTENT }}" > "$RUNNER_TEMP/.kube/config"
+          echo "$KUBECONFIG_B64" | base64 -d > "$RUNNER_TEMP/.kube/config"
           chmod 600 "$RUNNER_TEMP/.kube/config"
 
       - name: Deploy
