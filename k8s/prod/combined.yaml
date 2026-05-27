@@ -42,6 +42,18 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
+    # 스테이징/검증용 내부 호스트 (와일드카드 *.prod.nthreen.com → prod 클러스터)
+    # n3n.ai DNS cutover 전까지 이 호스트로 검증한다.
+    - host: homepage-n3n-ai.prod.nthreen.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: n3nai-svc
+                port:
+                  number: 80
     - host: n3n.ai
       http:
         paths:
