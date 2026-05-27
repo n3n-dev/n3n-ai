@@ -2,7 +2,7 @@ name: Build and Deploy to K8s
 
 on:
   push:
-    branches: [draft1, main]
+    branches: [develop, main]
 
 env:
   IMAGE_NAME: ghcr.io/n3n-dev/n3nai
@@ -53,7 +53,7 @@ jobs:
       - name: Resolve target env
         id: target
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/draft1" ]; then
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
             echo "env=d2" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
