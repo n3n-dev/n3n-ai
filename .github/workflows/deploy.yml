@@ -5,9 +5,9 @@ on:
     branches: [develop, main]
 
 env:
-  IMAGE_NAME: ghcr.io/n3n-dev/n3nai
-  NAMESPACE: homepage-n3n-ai
-  APP_NAME: n3nai
+  IMAGE_NAME: ghcr.io/n3n-dev/n3n-ai
+  NAMESPACE: n3n-ai
+  APP_NAME: n3n-ai
 
 jobs:
   build-and-push:

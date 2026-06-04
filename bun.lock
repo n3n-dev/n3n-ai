@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "n3nai",
+      "name": "n3n-ai",
       "dependencies": {
         "@lottiefiles/dotlottie-react": "^0.19.0",
         "@react-three/drei": "^10.7.7",

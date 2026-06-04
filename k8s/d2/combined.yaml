@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: n3nai
-  namespace: homepage-n3n-ai
+  name: n3n-ai
+  namespace: n3n-ai
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: n3nai
+      app: n3n-ai
   template:
     metadata:
       labels:
-        app: n3nai
+        app: n3n-ai
     spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-        - name: n3nai
-          image: ghcr.io/n3n-dev/n3nai:latest
+        - name: n3n-ai
+          image: ghcr.io/n3n-dev/n3n-ai:latest
           ports:
             - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: n3nai-svc
-  namespace: homepage-n3n-ai
+  name: n3n-ai-svc
+  namespace: n3n-ai
 spec:
   selector:
-    app: n3nai
+    app: n3n-ai
   ports:
     - protocol: TCP
       port: 80
@@ -37,8 +37,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: n3nai-ingress
-  namespace: homepage-n3n-ai
+  name: n3n-ai-ingress
+  namespace: n3n-ai
 spec:
   ingressClassName: traefik
   rules:
@@ -49,6 +49,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: n3nai-svc
+                name: n3n-ai-svc
                 port:
                   number: 80
