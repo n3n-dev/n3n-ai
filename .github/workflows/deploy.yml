@@ -2,7 +2,8 @@ name: Build and Deploy to K8s
 
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
+    tags: ["v*"]
 
 env:
   IMAGE_NAME: ghcr.io/n3n-dev/n3n-ai
@@ -16,6 +17,29 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 릴리즈 태그(v*)는 반드시 main 위의 커밋이어야 prod로 나간다.
+      - name: Ensure release tag is on main
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME is not a commit on main. Prod release tags must be cut from main." >&2
+            exit 1
+          fi
+
+      - name: Resolve image tags
+        id: meta
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            # 릴리즈: 버전 태그(v1.1) + latest + sha
+            echo "tags=${IMAGE_NAME}:${GITHUB_REF_NAME},${IMAGE_NAME}:latest,${IMAGE_NAME}:sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          else
+            # main(dev): sha 태그만
+            echo "tags=${IMAGE_NAME}:sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -33,9 +57,7 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
 
   deploy:
     needs: build-and-push
@@ -50,15 +72,19 @@ jobs:
         with:
           version: "v1.28.0"
 
+      # main 푸시 → d2(dev) 클러스터에 sha 이미지 배포
+      # v* 태그 푸시 → prod 클러스터에 버전 태그 이미지(v1.1) 배포
       - name: Resolve target env
         id: target
         run: |
-          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
-            echo "env=d2" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "image_tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "env=d2" >> "$GITHUB_OUTPUT"
+            echo "image_tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
           else
-            echo "Unknown ref: ${{ github.ref }}" >&2
+            echo "Unknown ref: $GITHUB_REF" >&2
             exit 1
           fi
 
@@ -86,7 +112,7 @@ jobs:
           kubectl --context "$CONTEXT" -n $NAMESPACE apply -f k8s/${{ steps.target.outputs.env }}/combined.yaml
           kubectl --context "$CONTEXT" -n $NAMESPACE set image \
             deployment/$APP_NAME \
-            $APP_NAME=$IMAGE_NAME:sha-${{ github.sha }}
+            $APP_NAME=$IMAGE_NAME:${{ steps.target.outputs.image_tag }}
           kubectl --context "$CONTEXT" -n $NAMESPACE rollout status \
             deployment/$APP_NAME --timeout=120s
 
