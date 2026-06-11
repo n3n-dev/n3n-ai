@@ -39,12 +39,12 @@ export default function Draft20Page({ tr, lang }: Props) {
             }
             bodyOverride={
               lang === "ko"
-                ? "INNOWATCH와 WIZEYE 기반으로\n영상·센서 데이터를 실시간 연결 및 분석합니다."
+                ? "INNOWATCH와 WIZEYE 기반의\n영상·센서 데이터를 Vision Agent AI가 실시간으로 연결·분석합니다."
                 : "Powered by INNOWATCH and WIZEYE,\nvideo and sensor data are analyzed in real time."
             }
             bodyDesktopOverride={
               lang === "ko"
-                ? "INNOWATCH와 WIZEYE 기반으로 영상·센서 데이터를 실시간 연결 및 분석합니다."
+                ? "INNOWATCH와 WIZEYE 기반의 영상·센서 데이터를 Vision Agent AI가 실시간으로 연결·분석합니다."
                 : "Powered by INNOWATCH and WIZEYE,\nvideo and sensor data are analyzed in real time."
             }
             tagsOverride={
@@ -69,7 +69,7 @@ export default function Draft20Page({ tr, lang }: Props) {
             variant="draft20"
             h2Override={
               lang === "ko"
-                ? "실시간 데이터 기반\n운영 인텔리전스"
+                ? "AI가 실시간 데이터를 분석해\n운영 인사이트를 제공합니다."
                 : "Real-time\nOperational Intelligence"
             }
           />
@@ -89,12 +89,12 @@ export default function Draft20Page({ tr, lang }: Props) {
           }
           subOverride={
             lang === "ko"
-              ? "데이터와 영상을 통합한 AI 기반 플랫폼으로\n다양한 산업 환경의 운영 효율을 지능적으로 연결합니다."
+              ? "데이터와 영상을 통합한 AI 기반 플랫폼으로\n산업 운영의 새로운 기준을 만듭니다."
               : "AI-powered operational intelligence\nacross real-world industries."
           }
           subDesktopOverride={
             lang === "ko"
-              ? "데이터와 영상을 통합한 AI 기반 플랫폼으로\n다양한 산업 환경의 운영 효율을 지능적으로 연결합니다."
+              ? "데이터와 영상을 통합한 AI 기반 플랫폼으로\n산업 운영의 새로운 기준을 만듭니다."
               : "AI-powered operational intelligence across real-world industries."
           }
           nextStepsLabel="Next Steps"
