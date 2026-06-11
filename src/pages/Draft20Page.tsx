@@ -82,10 +82,14 @@ export default function Draft20Page({ tr, lang }: Props) {
           light
           eyebrowOverride=""
           h2Override={
-            lang === "ko" ? "N3N 도입에 따른\n운영 혁신" : "Industry Use Cases"
+            lang === "ko"
+              ? "INNOWATCH와 WIZEYE 제품 도입에 따른\n운영 혁신"
+              : "Industry Use Cases"
           }
           h2DesktopOverride={
-            lang === "ko" ? "N3N 도입에 따른 운영 혁신" : "Industry Use Cases"
+            lang === "ko"
+              ? "INNOWATCH와 WIZEYE 제품 도입에 따른 운영 혁신"
+              : "Industry Use Cases"
           }
           subOverride={
             lang === "ko"
