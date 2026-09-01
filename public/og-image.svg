@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="N3N AI — Real-time Operational Intelligence Platform">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#030812"/>
+      <stop offset="60%" stop-color="#0A1628"/>
+      <stop offset="100%" stop-color="#02060F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0066FF"/>
+      <stop offset="50%" stop-color="#00A3FF"/>
+      <stop offset="100%" stop-color="#00D4FF"/>
+    </linearGradient>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#0066FF" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Glow orb -->
+  <circle cx="960" cy="315" r="220" fill="#0066FF" opacity="0.15" filter="url(#glow)"/>
+  <circle cx="960" cy="315" r="140" fill="#00D4FF" opacity="0.1" filter="url(#glow)"/>
+
+  <!-- Badge -->
+  <g transform="translate(80, 150)">
+    <rect x="0" y="0" width="420" height="44" rx="22" fill="#0066FF" fill-opacity="0.1" stroke="#0066FF" stroke-opacity="0.4"/>
+    <circle cx="24" cy="22" r="4" fill="#00D4FF"/>
+    <text x="42" y="29" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700" font-size="14" fill="#7AC2FF" letter-spacing="2">OPERATIONAL INTELLIGENCE PLATFORM</text>
+  </g>
+
+  <!-- Headline -->
+  <g transform="translate(80, 220)">
+    <text x="0" y="60" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="900" font-size="72" fill="#FFFFFF" letter-spacing="-2">Transforming Video Data</text>
+    <text x="0" y="140" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="900" font-size="72" fill="url(#accent)" letter-spacing="-2">into Actionable Intelligence</text>
+    <text x="0" y="200" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700" font-size="36" fill="#9CA3AF" letter-spacing="-1">through AI-Driven Analytics</text>
+  </g>
+
+  <!-- Footer brand line -->
+  <g transform="translate(80, 540)">
+    <text x="0" y="0" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="900" font-size="36" fill="#FFFFFF" letter-spacing="-1">N3N AI</text>
+    <text x="130" y="0" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="500" font-size="22" fill="#6B7280">INNOWATCH · WIZEYE</text>
+  </g>
+
+  <!-- URL -->
+  <g transform="translate(1120, 540)">
+    <text x="0" y="0" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="500" font-size="20" fill="#4B5563">n3n.co.kr</text>
+  </g>
+</svg>
